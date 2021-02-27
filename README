@@ -1,0 +1,34 @@
+The file simulations.tsv contains the results of thermodynamic simulations that need to be summarized and reported. 
+
+Some brief background: We have two sets of short oligos and are looking at how they compete thermodynamically for binding sites across a series of template sequences, which we refer to as mutants. In each simulation, there are three oligos present:
+
+1. A type 1 oligo (named in the first column)
+2. A type 2 oligo (named in the second column)
+3. A mutant template (named in the third column)
+
+In the simulation, the type1 and type2 oligos are competing for the same binding site on the mutant template. 
+
+In simulations.tsv, the type 2 oligo is held constant in all simulations. (You will note that the value in the 2nd column is always type2-abc.) So this is a series of competitions for binding sites on various templates with different type 1 oligos.
+
+Each pair of rows in simulations.tsv gives the result from a simulation. The type 2 oligo is always the same sequence, but the type 1 oligo varies. The name of the type 1 oligo is in the first column. The name of the type 2 oligo is in the second column (always the same in this case).
+
+
+
+The "oligo" column (the 4th column) tells you whether the row gives the thermodynamic values for the binding of the mutant template to the type 1 or type 2 oligo. We compare pairs of rows to see  whether type 1 or type 2 is winning out thermodynamically. 
+
+So, the first two rows tell you:
+
+- Type 1 oligo name is named type1-4091 (1st column)
+- Type 2 oligo name is type2-abc (2nd column)
+- The mutant being tested here is mutant-8. (3rd column)
+- The first row shows the binding of mutant-8 to type1-4091 (you can tell because column 4 says "type1")
+- The second row shows the binding of mutant-8 to the type2 oligo (you can tell because column 4 says "type2")
+
+Each type 1 oligo is tested against several mutations (mutant-0 through mutant-8, given in no particular order). 
+
+Here's what we want to know:
+
+For each type 1 oligo, what is the mutant with the highest value in the "MT initiation Tm" column? Print this to an output file. (For example, to answer this question for type1-4091, you would need to examine rows 2-27.)
+
+We also want to know whether how often each mutant is the "winner" in our little thermodynamic contest. For this, you just need to print out a file that shows the counts for how often each mutant had the highest value in the MT initiation Tm column. This is essentially an analysis of how often each mutant appears in the file you printed out in the previous step.
+
