@@ -9,6 +9,9 @@ import os.path
 from os import path
 
 source_name = "No file selected"
+required_columns = list(("type1Name", "type2Name", "mutant"
+                       , "oligo", "MT initiation Tm"))
+
 
 def choose_file(label):
     ### call global variables
@@ -23,18 +26,59 @@ def choose_file(label):
 def count_binding(label):
     ### call global variables
     global source_name
+
     if source_name is not None:
         if source_name is not "No file selected":
             print(source_name)
             print(type(source_name))
             if path.isfile(source_name):
-                infile = open(source_name, "r")
-                content = infile.read()
-                print(content)
-                infile.close()
+                read_file()
             else:
                 label.config(text="File not found. Try again?")
 
+
+def read_file():
+    ### call global variables
+    global source_name
+
+    infile = open(source_name, "r")
+    metadata = infile.readline()
+
+    analysis_columns = {}
+    data_results = {}
+    analysis_columns = check_metadata(metadata)
+    data = list()
+
+    if len(analysis_columns) > 0:
+        line_counter = 1
+        for line in infile:
+            if line_counter > 1:
+#                print(line)
+                analyze_line(line)
+
+            line_counter += 1
+
+#    content = infile.read()
+#    print(type(content))
+#    infile.close()
+
+
+def check_metadata(metaline):
+    global required_columns
+    empty_loc = {}
+    col_loc = {}
+
+    for name in required_columns:
+        if name not in metaline:
+            return(empty_loc)
+        else:
+            col_loc[name] = metaline.index(name)
+
+    return(col_loc)
+
+
+def analyze_line(dataline):
+    data = dataline.split("\t")
 
 
 ### Main calls start. The app starts here
