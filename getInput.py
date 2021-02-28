@@ -11,6 +11,7 @@ from os import path
 source_name = "No file selected"
 required_columns = list(("type1Name", "type2Name", "mutant"
                        , "oligo", "MT initiation Tm"))
+type1_init_max = {}
 
 
 def choose_file(label):
@@ -28,7 +29,7 @@ def count_binding(label):
     global source_name
 
     if source_name is not None:
-        if source_name is not "No file selected":
+        if source_name != "No file selected":
             print(source_name)
             print(type(source_name))
             if path.isfile(source_name):
@@ -40,6 +41,7 @@ def count_binding(label):
 def read_file():
     ### call global variables
     global source_name
+    global type1_init_max
 
     infile = open(source_name, "r")
     metadata = infile.readline()
@@ -54,12 +56,12 @@ def read_file():
         for line in infile:
             if line_counter > 1:
 #                print(line)
-                analyze_line(line)
+                analyze_line(line, analysis_columns)
 
             line_counter += 1
+        print(type1_init_max)
 
 #    content = infile.read()
-#    print(type(content))
 #    infile.close()
 
 
@@ -67,18 +69,32 @@ def check_metadata(metaline):
     global required_columns
     empty_loc = {}
     col_loc = {}
+    metacols = metaline.split("\t")
 
     for name in required_columns:
-        if name not in metaline:
+        if name not in metacols:
             return(empty_loc)
         else:
-            col_loc[name] = metaline.index(name)
-
+            col_loc[name] = metacols.index(name)
+    print(col_loc)
     return(col_loc)
 
 
-def analyze_line(dataline):
+def analyze_line(dataline, data_cols):
+    global type1_init_max
+
     data = dataline.split("\t")
+    if len(data) < 2:
+        return
+
+    type1_name = data[data_cols["type1Name"]]
+    try_max = list((data[data_cols["mutant"]], data[data_cols["MT initiation Tm"]]))
+    if type1_name in type1_init_max:
+        if data[data_cols["MT initiation Tm"]] > type1_init_max[type1_name][1]:
+            type1_init_max[type1_name] = try_max
+    else:
+        type1_init_max[type1_name] = try_max
+
 
 
 ### Main calls start. The app starts here
