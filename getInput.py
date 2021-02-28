@@ -39,9 +39,33 @@ def count_binding(label):
                     mutant = type1_init_max[name][0]
                     mutant_wins[mutant] += 1
  #               print(mutant_wins)
+                max_table = prep_max_table()
+                wins_table = prep_wins_table()
             else:
                 label.config(text="File not found. Try again?")
 
+
+def prep_max_table():
+    global type1_init_max
+
+    max_table = "Type1\tmutant\tMT initiation Tm\n"
+
+    for name in sorted(type1_init_max.keys()):
+        mutant = type1_init_max[name][0]
+        binding = type1_init_max[name][1]
+        max_table = max_table + name + "\t" + mutant + "\t" + str(binding) + "\n"
+
+    return(max_table)
+
+def prep_wins_table():
+    global mutant_wins
+    wins_table = "mutant\twins\n"
+
+    for mutant in sorted(mutant_wins.keys()):
+        wins = mutant_wins[mutant]
+        wins_table = wins_table + mutant + "\t" + str(wins) + "\n"
+
+    return(wins_table)
 
 
 
@@ -152,8 +176,13 @@ def start():
     close_btn = Button(src_frame, bg=button_background, text='Exit', command=lambda: sys.exit())
     close_btn.pack(side="right", padx=10, pady=10)
 
-#    results_frame = Frame(root, bd=7, bg=background)
-#    results_frame.pack()
+    spacer_frame = Frame(root, bd=7, bg=background)
+    spacer_frame.pack()
+    spacer_label = Label(spacer_frame, bg=background, width=60, anchor="w",
+                    text="Choose tab separated file listing protein binding")
+
+    max_binding_frame = Frame(root, bd=7, bg=background)
+    max_binding_frame.pack()
 
 
     root.mainloop()
