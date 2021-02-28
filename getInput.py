@@ -12,6 +12,7 @@ source_name = "No file selected"
 required_columns = list(("type1Name", "type2Name", "mutant"
                        , "oligo", "MT initiation Tm"))
 type1_init_max = {}
+mutant_wins = {}
 
 
 def choose_file(label):
@@ -34,8 +35,15 @@ def count_binding(label):
             print(type(source_name))
             if path.isfile(source_name):
                 read_file()
+                for name in type1_init_max:
+                    mutant = type1_init_max[name][0]
+                    mutant_wins[mutant] += 1
+ #               print(mutant_wins)
             else:
                 label.config(text="File not found. Try again?")
+
+
+
 
 
 def read_file():
@@ -46,10 +54,7 @@ def read_file():
     infile = open(source_name, "r")
     metadata = infile.readline()
 
-    analysis_columns = {}
-    data_results = {}
     analysis_columns = check_metadata(metadata)
-    data = list()
 
     if len(analysis_columns) > 0:
         line_counter = 1
@@ -59,10 +64,9 @@ def read_file():
                 analyze_line(line, analysis_columns)
 
             line_counter += 1
-        print(type1_init_max)
 
-#    content = infile.read()
-#    infile.close()
+#        print(len(type1_init_max))
+
 
 
 def check_metadata(metaline):
@@ -82,18 +86,28 @@ def check_metadata(metaline):
 
 def analyze_line(dataline, data_cols):
     global type1_init_max
+    global mutant_wins
 
     data = dataline.split("\t")
     if len(data) < 2:
         return
 
     type1_name = data[data_cols["type1Name"]]
-    try_max = list((data[data_cols["mutant"]], data[data_cols["MT initiation Tm"]]))
+
+    mutant = data[data_cols["mutant"]]
+    if mutant not in mutant_wins:
+        mutant_wins[mutant] = 0
+
+    try_max = list((mutant, data[data_cols["MT initiation Tm"]]))
+
     if type1_name in type1_init_max:
         if data[data_cols["MT initiation Tm"]] > type1_init_max[type1_name][1]:
             type1_init_max[type1_name] = try_max
     else:
         type1_init_max[type1_name] = try_max
+
+
+
 
 
 
@@ -138,6 +152,8 @@ def start():
     close_btn = Button(src_frame, bg=button_background, text='Exit', command=lambda: sys.exit())
     close_btn.pack(side="right", padx=10, pady=10)
 
+#    results_frame = Frame(root, bd=7, bg=background)
+#    results_frame.pack()
 
 
     root.mainloop()
