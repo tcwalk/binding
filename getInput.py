@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import font
 from tkinter import Scrollbar
 import tkinter as tk
-from tkinter.filedialog import askopenfile
+from tkinter.filedialog import askopenfile, askdirectory
 import sys
 import os.path
 from os import path
@@ -22,7 +22,6 @@ def choose_file(label):
     ### get file from user and update source label
     source = askopenfile(mode='r', filetypes=[('tab separated files', '*.tsv')])
     source_name = source.name
-#    print(source_name)
     label.config(text=source.name)
 
 
@@ -92,6 +91,7 @@ def read_file():
 
             line_counter += 1
 
+    infile.close()
 #        print(len(type1_init_max))
 
 
@@ -135,7 +135,26 @@ def analyze_line(dataline, data_cols):
 
 
 
+def print_results():
+    global type1_init_max
+    global mutant_wins
 
+    max_table = prep_max_table()
+    wins_table = prep_wins_table()
+
+    out_dir = askdirectory(title='Please select output directory')
+
+    max_out_file = out_dir + "/type1_init_max.tsv"
+    wins_out_file = out_dir + "/binding_wins.tsv"
+
+    outfile_max = open(max_out_file, "w")
+    outfile_max.write(max_table)
+
+    outfile_wins = open(wins_out_file, "w")
+    outfile_wins.write(wins_table)
+
+    outfile_max.close()
+    outfile_wins.close()
 
 
 ### Main calls start. The app starts here
@@ -175,6 +194,8 @@ def start():
 
     start_btn = Button(src_frame, text='Run Analysis', command=lambda:count_binding(selected_label, max_binding_label, binding_wins_label))
     start_btn.pack(side="left", padx=10, pady=10)
+    print_btn = Button(src_frame, text='Print Results', command=print_results)
+    print_btn.pack(side="left", padx=10, pady=10)
     close_btn = Button(src_frame, bg=button_background, text='Exit', command=lambda: sys.exit())
     close_btn.pack(side="right", padx=10, pady=10)
 
