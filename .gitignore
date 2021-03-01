@@ -1,0 +1,2 @@
+# Don't copy data files to repository files.
+*.tsv
