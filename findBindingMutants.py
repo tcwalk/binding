@@ -28,6 +28,10 @@ def choose_file(label):
 def count_binding(sel_label, binding_label, wins_label):
     ### call global variables
     global source_name
+    global type1_init_max
+    global mutant_wins
+    type1_init_max= {}
+    mutant_wins = {}
 
     if source_name is not None:
         if source_name != "No file selected":
@@ -35,14 +39,19 @@ def count_binding(sel_label, binding_label, wins_label):
             print(type(source_name))
             if path.isfile(source_name):
                 read_file()
-                for name in type1_init_max:
-                    mutant = type1_init_max[name][0]
-                    mutant_wins[mutant] += 1
- #               print(mutant_wins)
-                max_table = prep_max_table()
-                wins_table = prep_wins_table()
-                binding_label.config(text=max_table)
-                wins_label.config(text=wins_table)
+                if len(type1_init_max) > 0:
+                    for name in type1_init_max:
+                        mutant = type1_init_max[name][0]
+                        mutant_wins[mutant] += 1
+
+                    max_table = prep_max_table()
+                    wins_table = prep_wins_table()
+                    binding_label.config(text=max_table)
+                    wins_label.config(text=wins_table)
+                else:
+                    binding_label.config(text="File format not supported")
+                    wins_label.config(text="Try again?")
+
             else:
                 sel_label.config(text="File not found. Try again?")
 
@@ -74,15 +83,14 @@ def prep_wins_table():
 
 def read_file():
     ### call global variables
-    global source_name
-    global type1_init_max
+    global source_name, type1_init_max, required_columns
 
     infile = open(source_name, "r")
     metadata = infile.readline()
 
     analysis_columns = check_metadata(metadata)
 
-    if len(analysis_columns) > 0:
+    if len(analysis_columns) == len(required_columns):
         line_counter = 1
         for line in infile:
             if line_counter > 1:
@@ -90,7 +98,6 @@ def read_file():
                 analyze_line(line, analysis_columns)
 
             line_counter += 1
-
     infile.close()
 #        print(len(type1_init_max))
 
