@@ -2,6 +2,7 @@
 
 from tkinter import *
 from tkinter import font
+from tkinter import Scrollbar
 import tkinter as tk
 from tkinter.filedialog import askopenfile
 import sys
@@ -25,7 +26,7 @@ def choose_file(label):
     label.config(text=source.name)
 
 
-def count_binding(label):
+def count_binding(sel_label, binding_label, wins_label):
     ### call global variables
     global source_name
 
@@ -41,8 +42,10 @@ def count_binding(label):
  #               print(mutant_wins)
                 max_table = prep_max_table()
                 wins_table = prep_wins_table()
+                binding_label.config(text=max_table)
+                wins_label.config(text=wins_table)
             else:
-                label.config(text="File not found. Try again?")
+                sel_label.config(text="File not found. Try again?")
 
 
 def prep_max_table():
@@ -53,7 +56,7 @@ def prep_max_table():
     for name in sorted(type1_init_max.keys()):
         mutant = type1_init_max[name][0]
         binding = type1_init_max[name][1]
-        max_table = max_table + name + "\t" + mutant + "\t" + str(binding) + "\n"
+        max_table = max_table + name + "\t" + mutant + "\t  " + str(binding) + "\n"
 
     return(max_table)
 
@@ -63,7 +66,7 @@ def prep_wins_table():
 
     for mutant in sorted(mutant_wins.keys()):
         wins = mutant_wins[mutant]
-        wins_table = wins_table + mutant + "\t" + str(wins) + "\n"
+        wins_table = wins_table + mutant + "\t  " + str(wins) + "\n"
 
     return(wins_table)
 
@@ -163,7 +166,6 @@ def start():
     selected_frame = Frame(root, bd=7, bg=background)
     selected_frame.pack()
     selected_label = Label(selected_frame, bg=background, text=source_name)
-    selected_label.grid(row=3, column=2)
 
     ### Select file here. Use lambda to pass label for updating as argument
     src_frame = Frame(root, bd=7, bg=background)
@@ -171,18 +173,59 @@ def start():
     src_file_button = Button(src_frame, bg=button_background, text='CHOOSE FILE', command=lambda:choose_file(selected_label))
     src_file_button.pack(side="top", pady=10)
 
-    start_btn = Button(src_frame, text='Run Analysis', command=lambda:count_binding(selected_label))
+    start_btn = Button(src_frame, text='Run Analysis', command=lambda:count_binding(selected_label, max_binding_label, binding_wins_label))
     start_btn.pack(side="left", padx=10, pady=10)
     close_btn = Button(src_frame, bg=button_background, text='Exit', command=lambda: sys.exit())
     close_btn.pack(side="right", padx=10, pady=10)
 
-    spacer_frame = Frame(root, bd=7, bg=background)
-    spacer_frame.pack()
-    spacer_label = Label(spacer_frame, bg=background, width=60, anchor="w",
-                    text="Choose tab separated file listing protein binding")
+#    spacer_frame = Frame(root, bd=7, bg=background)
+#    spacer_frame.pack()
+#    spacer_label = Label(spacer_frame, bg=background, width=60, anchor="w",
+#                    text="============================================")
 
-    max_binding_frame = Frame(root, bd=7, bg=background)
+    max_binding_frame = Frame(root, bd=7, height=15, bg=background)
+    max_binding_canvas = Canvas(max_binding_frame)
+    max_binding_sb = Scrollbar(max_binding_frame, orient="vertical", command=max_binding_canvas.yview)
+    max_scrollable_frame = Frame(max_binding_canvas)
+
+    max_scrollable_frame.bind(
+        "<Configure>",
+        lambda e: max_binding_canvas.configure(
+            scrollregion=max_binding_canvas.bbox("all")
+        )
+    )
+
+    max_binding_canvas.create_window((0, 0), window=max_scrollable_frame, anchor="nw")
+    max_binding_canvas.configure(yscrollcommand=max_binding_sb.set)
+    max_binding_label = Label(max_scrollable_frame, bg=background, text="Max binding data will appear here")
     max_binding_frame.pack()
+    max_binding_canvas.pack(side="left", fill="both", expand=True)
+    max_binding_sb.pack(side="right",fill="both")
+    max_binding_label.pack(side="top")
+
+
+    binding_wins_frame = Frame(root, bd=7, height=15, bg=background)
+    binding_wins_canvas = Canvas(binding_wins_frame)
+    binding_wins_sb = Scrollbar(binding_wins_frame, orient="vertical", command=binding_wins_canvas.yview)
+    wins_scrollable_frame = Frame(binding_wins_canvas)
+
+    wins_scrollable_frame.bind(
+        "<Configure>",
+        lambda e: binding_wins_canvas.configure(
+            scrollregion=binding_wins_canvas.bbox("all")
+        )
+    )
+
+    binding_wins_canvas.create_window((0, 0), window=wins_scrollable_frame, anchor="nw")
+    binding_wins_canvas.configure(yscrollcommand=binding_wins_sb.set)
+    binding_wins_label = Label(wins_scrollable_frame, bg=background, text="Binding wins data will appear here")
+    binding_wins_frame.pack()
+    binding_wins_canvas.pack(side="left", fill="both", expand=True)
+    binding_wins_sb.pack(side="right",fill="both")
+    binding_wins_label.pack(side="top")
+
+
+
 
 
     root.mainloop()
